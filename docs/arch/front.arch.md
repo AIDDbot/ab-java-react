@@ -76,7 +76,12 @@ front/src/
 Consumes `GET /api/health`. The `HealthResponse` type is the single source of truth on the client:
 
 ```ts
-type HealthResponse = { status: string; database: string; checkedAt: string };
+type HealthResponse = {
+  status: "UP" | "DOWN";
+  database: "UP" | "DOWN";
+  uptime: { seconds: number; since: string };
+  timestamp: string;
+};
 ```
 
 ### Dependencies between features
