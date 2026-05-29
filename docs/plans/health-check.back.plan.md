@@ -1,7 +1,7 @@
 ---
 slug: health-check
 tier: back
-status: pending
+status: done
 ---
 # Implementation Plan — health-check — back
 
@@ -32,7 +32,7 @@ Point the API at the embedded SQLite file and let JPA own the schema, so the `HE
 
 - Paths involved:
   - `back/src/main/resources/application.yml`
-- [ ] Set the JDBC URL to the embedded file `data/app.db`, configure the `org.xerial:sqlite-jdbc` driver and the community SQLite Hibernate dialect, set `spring.jpa.hibernate.ddl-auto: update`, and the server port.
+- [x] Set the JDBC URL to the embedded file `data/app.db`, configure the `org.xerial:sqlite-jdbc` driver and the community SQLite Hibernate dialect, set `spring.jpa.hibernate.ddl-auto: update`, and the server port.
 
 ### Step 2: Define the `HealthCheck` JPA entity
 
@@ -40,7 +40,7 @@ Create the append-only domain record for a probe.
 
 - Paths involved:
   - `back/src/main/java/dev/aiddbot/abjavareact/health/HealthCheck.java`
-- [ ] Define a JPA `@Entity` mapped to `HEALTH_CHECK` with an auto-increment `id`, `status` and `databaseStatus` stored as text enums (`UP`/`DOWN`), `uptimeSeconds` (long, not null), and `checkedAt` (Instant/String ISO-8601), with no-arg + all-args construction.
+- [x] Define a JPA `@Entity` mapped to `HEALTH_CHECK` with an auto-increment `id`, `status` and `databaseStatus` stored as text enums (`UP`/`DOWN`), `uptimeSeconds` (long, not null), and `checkedAt` (Instant/String ISO-8601), with no-arg + all-args construction.
 
 ### Step 3: Create the `HealthCheckRepository`
 
@@ -48,7 +48,7 @@ Provide persistence for probe records.
 
 - Paths involved:
   - `back/src/main/java/dev/aiddbot/abjavareact/health/HealthCheckRepository.java`
-- [ ] Define a `JpaRepository<HealthCheck, Long>` (Spring Data) for saving health-check records.
+- [x] Define a `JpaRepository<HealthCheck, Long>` (Spring Data) for saving health-check records.
 
 ### Step 4: Define the `HealthResponse` DTO
 
@@ -56,7 +56,7 @@ Shape the JSON contract returned to clients, including the nested uptime object.
 
 - Paths involved:
   - `back/src/main/java/dev/aiddbot/abjavareact/health/HealthResponse.java`
-- [ ] Define a Java record `HealthResponse(String status, String database, Uptime uptime, String timestamp)` with a nested `Uptime(long seconds, String since)` record, serialized to the JSON contract above.
+- [x] Define a Java record `HealthResponse(String status, String database, Uptime uptime, String timestamp)` with a nested `Uptime(long seconds, String since)` record, serialized to the JSON contract above.
 
 ### Step 5: Capture the application start time
 
@@ -65,7 +65,7 @@ Make the process start instant available for uptime computation.
 - Paths involved:
   - `back/src/main/java/dev/aiddbot/abjavareact/health/HealthService.java`
   - `back/src/main/java/dev/aiddbot/abjavareact/AbJavaReactApplication.java`
-- [ ] Record the start `Instant` at boot (e.g. captured when the service bean is constructed) so uptime can be derived as the difference from the probe time.
+- [x] Record the start `Instant` at boot (e.g. captured when the service bean is constructed) so uptime can be derived as the difference from the probe time.
 
 ### Step 6: Implement `HealthService` (probe, uptime, timestamp, persistence)
 
@@ -73,10 +73,10 @@ Assemble the vitals and persist the probe.
 
 - Paths involved:
   - `back/src/main/java/dev/aiddbot/abjavareact/health/HealthService.java`
-- [ ] Probe database connectivity (e.g. a lightweight repository/connection check) and set `databaseStatus`; set overall `status` = `UP` only if the DB probe succeeds, else both `DOWN`.
-- [ ] Compute `uptimeSeconds` as whole seconds between the captured start time and `now`, and set `timestamp`/`checkedAt` to the current server time in ISO-8601 UTC.
-- [ ] Persist one `HealthCheck` record (status, databaseStatus, uptimeSeconds, checkedAt) and return a populated `HealthResponse`.
-- [ ] Catch database/probe failures internally so the method returns a `DOWN` result instead of propagating an exception.
+- [x] Probe database connectivity (e.g. a lightweight repository/connection check) and set `databaseStatus`; set overall `status` = `UP` only if the DB probe succeeds, else both `DOWN`.
+- [x] Compute `uptimeSeconds` as whole seconds between the captured start time and `now`, and set `timestamp`/`checkedAt` to the current server time in ISO-8601 UTC.
+- [x] Persist one `HealthCheck` record (status, databaseStatus, uptimeSeconds, checkedAt) and return a populated `HealthResponse`.
+- [x] Catch database/probe failures internally so the method returns a `DOWN` result instead of propagating an exception.
 
 ### Step 7: Implement `HealthController` with correct status codes
 
@@ -84,7 +84,7 @@ Expose the endpoint and map health to HTTP status.
 
 - Paths involved:
   - `back/src/main/java/dev/aiddbot/abjavareact/health/HealthController.java`
-- [ ] Add `@RestController` handling `GET /api/health` that delegates to `HealthService` and returns `200 OK` when `status` = `UP` and `503 Service Unavailable` when `status` = `DOWN`, both carrying the `HealthResponse` body.
+- [x] Add `@RestController` handling `GET /api/health` that delegates to `HealthService` and returns `200 OK` when `status` = `UP` and `503 Service Unavailable` when `status` = `DOWN`, both carrying the `HealthResponse` body.
 
 ### Step 8: Configure CORS for the SPA origin
 
@@ -93,7 +93,7 @@ Allow the frontend dev origin to call the API.
 - Paths involved:
   - `back/src/main/java/dev/aiddbot/abjavareact/shared/`
   - `back/src/main/resources/application.yml`
-- [ ] Add a CORS configuration permitting the SPA origin to issue `GET` requests to `/api/**`.
+- [x] Add a CORS configuration permitting the SPA origin to issue `GET` requests to `/api/**`.
 
 ### Step 9: Provision and ignore the database file
 
@@ -102,4 +102,4 @@ Ensure the embedded SQLite file location exists at runtime and is never committe
 - Paths involved:
   - `back/data/`
   - `back/.gitignore`
-- [ ] Ensure the `data/` directory is present/created on startup and add `data/` and `*.db` to `.gitignore` so the generated database is not committed.
+- [x] Ensure the `data/` directory is present/created on startup and add `data/` and `*.db` to `.gitignore` so the generated database is not committed.

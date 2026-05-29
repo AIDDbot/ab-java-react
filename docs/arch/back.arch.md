@@ -8,12 +8,14 @@ The `back` tier is a Spring Boot REST API written in Java that exposes the healt
 
 | Area | Choice |
 |------|--------|
-| Language | Java 21 (LTS) |
-| Framework | Spring Boot 3.4 (Spring Web, Spring Data JPA) |
+| Language | Java 21 (LTS) compile target, running on Java 25 |
+| Framework | Spring Boot 3.5.x (Spring Web, Spring Data JPA) |
 | Testing | JUnit 5, Spring Boot Test, MockMvc |
 | Storage | SQLite (file-based) via JDBC + Hibernate community dialect |
 | Security | Public endpoints; CORS allow-list for the SPA origin |
 | Logging | SLF4J + Logback (Spring Boot default) |
+
+> Spring Boot 3.5.x is used (not 3.4) because first-class Java 25 support landed in 3.5.5; bytecode still targets Java 21 via `maven.compiler.release`.
 
 ### Development workflow
 
@@ -73,7 +75,18 @@ back/src/main/java/dev/aiddbot/abjavareact/
 
 | Method | Path | Response |
 |--------|------|----------|
-| GET | `/api/health` | `200` `{ "status": "UP", "database": "UP", "checkedAt": "<ISO-8601>" }` |
+| GET | `/api/health` | `200` (UP) / `503` (DOWN) — `{ "status", "database", "uptime": { "seconds", "since" }, "timestamp" }` |
+
+Example body:
+
+```json
+{
+  "status": "UP",
+  "database": "UP",
+  "uptime": { "seconds": 3725, "since": "2026-05-29T10:00:00Z" },
+  "timestamp": "2026-05-29T11:02:05Z"
+}
+```
 
 ### Dependencies between modules
 
@@ -84,6 +97,6 @@ graph LR
 
 ### Storage infrastructure
 
-Single embedded SQLite file (`data/app.db`) accessed via the `org.xerial:sqlite-jdbc` driver. Hibernate uses the `hibernate-community-dialects` SQLite dialect. Schema is created/updated by JPA (`ddl-auto: update`) for the archetype; a single connection writer is assumed (SQLite single-writer constraint).
+Single embedded SQLite file (`data/app.db`) accessed via the `org.xerial:sqlite-jdbc` driver. Hibernate uses the `hibernate-community-dialects` SQLite dialect (`org.hibernate.community.dialect.SQLiteDialect`). Schema is created/updated by JPA (`ddl-auto: update`) for the archetype; a single connection writer is assumed (SQLite single-writer constraint). The `data/` directory is provisioned at startup and excluded from version control. `checked_at` is persisted as an ISO-8601 UTC `TEXT` value and `uptime_seconds` as an `INTEGER`.
 
 > last updated: May 2026

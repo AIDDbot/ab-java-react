@@ -12,6 +12,7 @@ erDiagram
         INTEGER id PK "autoincrement"
         TEXT status "required, enum: UP|DOWN"
         TEXT database_status "required, enum: UP|DOWN"
+        INTEGER uptime_seconds "required, >= 0"
         TEXT checked_at "required, ISO-8601 UTC timestamp"
     }
 ```
@@ -25,6 +26,7 @@ erDiagram
 | `id` | INTEGER | PK, auto-increment, not null |
 | `status` | TEXT | required, enum (`UP`, `DOWN`) — overall system status |
 | `database_status` | TEXT | required, enum (`UP`, `DOWN`) — DB connectivity result |
+| `uptime_seconds` | INTEGER | required, `>= 0` — whole seconds since the API process started, at probe time |
 | `checked_at` | TEXT | required, ISO-8601 UTC timestamp of the probe |
 
 ## Relationships and integrity rules
@@ -36,4 +38,5 @@ erDiagram
 ## Cross-entity business rules
 
 - `status` is `UP` only when `database_status` is `UP`; if the database probe fails, both `status` and `database_status` are `DOWN`.
+- `uptime_seconds` is the whole seconds elapsed since the API process started, measured at probe time.
 - `checked_at` is set server-side at probe time and is immutable once persisted (records are append-only; no updates or deletes).
