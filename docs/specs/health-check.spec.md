@@ -93,12 +93,28 @@ erDiagram
 
 ## Acceptance and Release
 
-- [ ] WHEN a client sends `GET /api/health` and the database is reachable, THE API SHALL respond `200 OK` with a JSON body containing `status` = `UP`, `database` = `UP`, an `uptime` object with numeric `seconds` and an ISO-8601 `since`, and an ISO-8601 `timestamp`.
-- [ ] IF the database probe fails, THEN THE API SHALL respond `503 Service Unavailable` with `status` = `DOWN` and `database` = `DOWN`, and SHALL NOT expose a stack trace to the client.
-- [ ] THE API SHALL compute `uptime.seconds` as the whole seconds elapsed since the API process started, measured at the time the request is served.
-- [ ] THE API SHALL set `timestamp` to the current server time in ISO-8601 UTC at the time the request is served.
-- [ ] WHEN a health probe is served, THE API SHALL persist one append-only `HealthCheck` record capturing `status`, `databaseStatus`, `uptimeSeconds`, and `checkedAt`.
-- [ ] WHILE the health request is in flight, THE Web SPA SHALL display a loading indicator.
-- [ ] WHEN the health request succeeds, THE Web SPA SHALL display the overall status, the database status, the uptime in human-readable form, and the current server timestamp.
-- [ ] IF the health request fails or returns `status` = `DOWN`, THEN THE Web SPA SHALL display a clear, non-empty error or unhealthy state to the user.
-- [ ] THE E2E suite SHALL drive the SPA against a running API and assert that the rendered health vitals (status, database, uptime, timestamp) are present and reflect a healthy system.
+- [x] WHEN a client sends `GET /api/health` and the database is reachable, THE API SHALL respond `200 OK` with a JSON body containing `status` = `UP`, `database` = `UP`, an `uptime` object with numeric `seconds` and an ISO-8601 `since`, and an ISO-8601 `timestamp`.
+- [x] IF the database probe fails, THEN THE API SHALL respond `503 Service Unavailable` with `status` = `DOWN` and `database` = `DOWN`, and SHALL NOT expose a stack trace to the client.
+- [x] THE API SHALL compute `uptime.seconds` as the whole seconds elapsed since the API process started, measured at the time the request is served.
+- [x] THE API SHALL set `timestamp` to the current server time in ISO-8601 UTC at the time the request is served.
+- [x] WHEN a health probe is served, THE API SHALL persist one append-only `HealthCheck` record capturing `status`, `databaseStatus`, `uptimeSeconds`, and `checkedAt`.
+- [x] WHILE the health request is in flight, THE Web SPA SHALL display a loading indicator.
+- [x] WHEN the health request succeeds, THE Web SPA SHALL display the overall status, the database status, the uptime in human-readable form, and the current server timestamp.
+- [x] IF the health request fails or returns `status` = `DOWN`, THEN THE Web SPA SHALL display a clear, non-empty error or unhealthy state to the user.
+- [x] THE E2E suite SHALL drive the SPA against a running API and assert that the rendered health vitals (status, database, uptime, timestamp) are present and reflect a healthy system.
+
+## Verification
+
+All acceptance criteria pass. Verified by the `e2e` Playwright suite (`e2e/tests/health.spec.ts`, 4 tests) driving the live SPA + API, complemented by the `back` unit/slice tests covering API-internal behavior:
+
+| Criterion | Verified by |
+|-----------|-------------|
+| 200 OK healthy payload | E2E `renders healthy system vitals from the live API`; back `HealthControllerTest.returnsOkWhenHealthy` |
+| 503 DOWN, no stack trace | back `HealthControllerTest.returnsServiceUnavailableWhenDown`, `HealthServiceTest.reportsDownWithoutThrowingWhenDatabaseProbeFails`; E2E DOWN UI scenario |
+| uptime whole seconds since start | back `HealthServiceTest.computesUptimeAsWholeSecondsSinceStart`; E2E uptime rendered from live API |
+| server `timestamp` ISO-8601 UTC | back `HealthServiceTest`; E2E timestamp rendered from live API |
+| append-only persistence | back `HealthServiceTest.reportsUpAndPersistsWhenDatabaseReachable`, `HealthCheckRepositoryTest` |
+| SPA loading indicator | E2E `shows a loading indicator while the probe is in flight` |
+| SPA success render | E2E `renders healthy system vitals from the live API` |
+| SPA error/unhealthy state | E2E `shows a clear error state when the probe reports the system is down` / `when the API is unreachable` |
+| E2E drives SPA vs live API | E2E suite (`reuseExistingServer` + `webServer` boots `back` + `front`) |
