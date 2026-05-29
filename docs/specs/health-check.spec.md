@@ -1,7 +1,7 @@
 ---
 spec-slug: health-check
-status: in-progress
-released-version:
+status: done
+released-version: 0.1.0
 ---
 # Specification — Health Check (system vitals, uptime, timestamp)
 
