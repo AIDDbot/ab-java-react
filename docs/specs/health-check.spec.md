@@ -1,6 +1,6 @@
 ---
 spec-slug: health-check
-status: pending
+status: in-progress
 released-version:
 ---
 # Specification — Health Check (system vitals, uptime, timestamp)
