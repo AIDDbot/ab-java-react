@@ -5,7 +5,7 @@ It is intended to be used as a starting point for new projects and to provide a 
 
 Initial feature is just a Health check endpoint for the API and a simple display of such Health check for the React Frontend.
 
-This is a demo project using latest releases and best practices for a Java Spring Boot Backend API and Typescript React Frontend Application. E2E testing will be done with TypeScript and Playwright.
+This is a demo project using latest releases and best practices for a Java Spring Boot Backend API and Typescript React Frontend Application. E2E testing will be done with TypeScript and Playwright. Storage will be done with a SQLite database.
 
 ---
 
