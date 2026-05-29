@@ -33,6 +33,7 @@ ab-java-react
 ├── e2e/          # TypeScript + Playwright end-to-end test suite
 ├── AGENTS.md     # project environment, product, and workflow paths
 ├── SOUL.md       # agent personality, git rules, and boundaries
+├── DESIGN.md     # design system specification
 ├── CHANGELOG.md  # the changelog file
 ├── README.md     # the readme file
 ```
